@@ -22,6 +22,21 @@ Architecture and phase plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 | Logging to `logs/application.log` (rotating) | Done |
 | Automated tests (26) | Passing |
 
+## Download the Windows installer
+
+Every push to `main` is tested and built on Windows by GitHub Actions
+(`.github/workflows/build-windows.yml`). Download from the repository's
+**Releases** page:
+
+- `UnicalIVVTool_Setup_<version>.exe`: standalone installer, one file with
+  Python, Qt and all libraries inside. Adds Start Menu and desktop shortcuts and
+  an uninstaller. No admin rights needed.
+- `UnicalIVVTool_Portable.exe`: a single exe that runs without installing.
+
+User data (database, logs, reports, uploads, editable config) is kept in
+`%LOCALAPPDATA%\Unical Systems\IVV Review Tool`. It is not removed on
+uninstall or upgrade.
+
 ## Install and run on Windows (from source)
 
 You need Windows 10 or 11 (64-bit) and Python 3.11 or later from python.org

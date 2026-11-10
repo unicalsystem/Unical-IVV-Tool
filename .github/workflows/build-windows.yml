@@ -2,7 +2,7 @@ name: Build Windows Installer
 on:
   workflow_dispatch:
   push:
-    branches: [unical-ivv-tool-build]
+    branches: [main]
 permissions:
   contents: write
 jobs:
@@ -56,3 +56,11 @@ jobs:
           git add -f publish
           git commit -m "Windows installer ${{ github.sha }}"
           git push -f origin exe-build
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ver = (Get-Content config\app_config.json | ConvertFrom-Json).version.Split(' ')[0]
+          $tag = "v$ver-build.${{ github.run_number }}"
+          gh release create $tag publish\*.exe --repo ${{ github.repository }} --target ${{ github.sha }} --title "Unical IV&V Review Tool $ver (build ${{ github.run_number }})" --notes "Windows installer (UnicalIVVTool_Setup_$ver.exe) and portable one-file exe. Built from ${{ github.sha }} after all tests passed."

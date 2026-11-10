@@ -1,29 +1,55 @@
 """Application paths, configuration loading and logging set-up.
 
-Everything is resolved relative to the application folder so the tool runs the
-same way from source and from a PyInstaller executable. No network access.
+From source, all data lives in the project folder. In the installed Windows
+build the program files are read-only, so writable data (database, logs,
+reports, uploaded documents, editable config) lives in the user data folder:
+%LOCALAPPDATA%\\Unical Systems\\IVV Review Tool. No network access.
 """
 from __future__ import annotations
 
 import json
 import logging
 import logging.handlers
+import os
+import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 
+APP_DATA_SUBDIR = ("Unical Systems", "IVV Review Tool")
+
+
 def application_root() -> Path:
-    """Folder holding config/, assets/, database/ ... (source or frozen exe)."""
-    if getattr(sys, "frozen", False):  # PyInstaller one-folder build
-        return Path(sys.executable).resolve().parent
+    """Writable data root: project folder (source) or per-user data folder (frozen exe)."""
+    if getattr(sys, "frozen", False):
+        base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
+        root = Path(base).joinpath(*APP_DATA_SUBDIR)
+        root.mkdir(parents=True, exist_ok=True)
+        _seed_user_config(root)
+        return root
     return Path(__file__).resolve().parent.parent
+
+
+def _seed_user_config(root: Path) -> None:
+    """Copy the default config files into the user data folder on first run."""
+    target = root / "config"
+    target.mkdir(parents=True, exist_ok=True)
+    for name in ("app_config.json", "model_config.json"):
+        src = bundled_resource("config/" + name)
+        if src.exists() and not (target / name).exists():
+            shutil.copy2(src, target / name)
 
 
 def bundled_resource(relative: str) -> Path:
     """Read-only resource shipped with the app (assets, default config)."""
-    base = Path(getattr(sys, "_MEIPASS", application_root()))
+    if hasattr(sys, "_MEIPASS"):
+        base = Path(sys._MEIPASS)
+    elif getattr(sys, "frozen", False):
+        base = Path(sys.executable).resolve().parent
+    else:
+        base = Path(__file__).resolve().parent.parent
     return base / relative
 
 

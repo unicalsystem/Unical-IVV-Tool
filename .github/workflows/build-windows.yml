@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build Windows Installer
 on:
   workflow_dispatch:
   push:
@@ -24,26 +24,35 @@ jobs:
         run: |
           python -m pytest -q --junitxml=test-results.xml || ver > nul
           python -c "import xml.etree.ElementTree as E,sys; r=E.parse('test-results.xml').getroot(); s=r if r.tag=='testsuite' else r[0]; t,f,e=int(s.get('tests')),int(s.get('failures')),int(s.get('errors')); print(f'tests={t} failures={f} errors={e}'); sys.exit(0 if t>0 and f==0 and e==0 else 1)"
-      - name: Build
+      - name: Build application (PyInstaller)
         shell: cmd
         run: |
-          pyinstaller --noconfirm --clean --windowed --name UnicalIVVTool --add-data "assets;assets" --add-data "config;config" --add-data "database\schema.sql;database" main.py
-          xcopy /E /I /Y config dist\UnicalIVVTool\config
-          xcopy /E /I /Y templates dist\UnicalIVVTool\templates
-          for %%d in (database logs reports uploaded_documents checklists) do if not exist dist\UnicalIVVTool\%%d mkdir dist\UnicalIVVTool\%%d
-      - uses: actions/upload-artifact@v4
-        with:
-          name: UnicalIVVTool-windows
-          path: dist/UnicalIVVTool
-      - name: Publish zip to exe-build branch
+          pyinstaller --noconfirm --clean --windowed --name UnicalIVVTool --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" main.py
+          pyinstaller --noconfirm --clean --windowed --onefile --name UnicalIVVTool_Portable --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" main.py
+      - name: Build installer (Inno Setup)
         shell: pwsh
         run: |
-          Compress-Archive -Path dist/UnicalIVVTool -DestinationPath UnicalIVVTool-windows.zip -CompressionLevel Optimal
-          Get-Item UnicalIVVTool-windows.zip | Select-Object Length
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc installer\UnicalIVVTool.iss
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          Get-ChildItem Output, dist\UnicalIVVTool_Portable.exe | Select-Object Name, Length
+      - uses: actions/upload-artifact@v4
+        with:
+          name: UnicalIVVTool-installer
+          path: |
+            Output/*.exe
+            dist/UnicalIVVTool_Portable.exe
+      - name: Publish to exe-build branch
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force publish | Out-Null
+          Copy-Item Output\*.exe publish\
+          Copy-Item dist\UnicalIVVTool_Portable.exe publish\
           git config user.name "Unical Build"
           git config user.email "noreply@unical.in"
           git checkout --orphan exe-build
           git rm -rf --cached . | Out-Null
-          git add -f UnicalIVVTool-windows.zip
-          git commit -m "Windows build ${{ github.sha }}"
+          git add -f publish
+          git commit -m "Windows installer ${{ github.sha }}"
           git push -f origin exe-build

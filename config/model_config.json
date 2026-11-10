@@ -1,0 +1,11 @@
+{
+  "_comment": "Local LLM settings. Used from Phase 6. Only localhost endpoints are allowed - documents never leave this computer.",
+  "enabled": false,
+  "runtime": "ollama",
+  "model_name": "llama3.1:8b-instruct-q4_K_M",
+  "endpoint": "http://127.0.0.1:11434",
+  "context_length": 8192,
+  "temperature": 0.1,
+  "timeout_seconds": 180,
+  "max_output_tokens": 1500
+}

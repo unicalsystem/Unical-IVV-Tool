@@ -1,0 +1,22 @@
+{
+  "app_name": "Unical Systems - DO-178 IV&V Review Tool",
+  "app_short_name": "Unical IV&V Review Tool",
+  "version": "0.1.0 (Phase 1 - Foundation)",
+  "company": "Unical Systems",
+  "database_file": "database/unical_ivv.db",
+  "log_file": "logs/application.log",
+  "log_level": "INFO",
+  "reports_folder": "reports",
+  "uploads_folder": "uploaded_documents",
+  "security": {
+    "max_failed_logins": 5,
+    "lockout_minutes": 15,
+    "pbkdf2_iterations": 240000
+  },
+  "ui": {
+    "theme": "light",
+    "window_width": 1280,
+    "window_height": 800,
+    "recent_activity_rows": 15
+  }
+}

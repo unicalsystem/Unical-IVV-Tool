@@ -11,13 +11,13 @@ def test_schema_created(db):
     with sqlite3.connect(db.db_path) as conn:
         names = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     assert EXPECTED_TABLES <= names
-    assert db.schema_version() == "1"
+    assert db.schema_version() == "2"
 
 
 def test_initialise_is_idempotent(db):
     db.initialise()
     db.initialise()
-    assert db.schema_version() == "1"
+    assert db.schema_version() == "2"
 
 
 def test_empty_dashboard_stats(db):

@@ -1,0 +1,22 @@
+{
+  "_comment": "Severity proposal rules (the reviewer can change any severity). Keys: sheet letter, then verdict. Values: severity or 'by_dal' (Major at levels in major_dal_levels, Minor otherwise).",
+  "major_dal_levels": ["A", "B"],
+  "by_sheet": {
+    "A": {"NC": "Minor", "PC": "Observation"},
+    "B": {"NC": "Major", "PC": "Minor"},
+    "C": {"NC": "Major", "PC": "Minor"},
+    "D": {"NC": "Major", "PC": "Minor"},
+    "E": {"NC": "Observation", "PC": "Observation"},
+    "F": {"NC": "by_dal", "PC": "Minor"},
+    "U": {"NC": "Major", "PC": "Minor"}
+  },
+  "by_rule": {
+    "states_dal": {"NC": "Major", "PC": "Minor"},
+    "signatories": {"NC": "Major", "PC": "Minor"},
+    "no_placeholders": {"PC": "Minor"},
+    "acronyms_defined": {"PC": "Observation"},
+    "figures_tables": {"NC": "Observation", "PC": "Observation"}
+  },
+  "consistency": {"dal": "Major", "standard": "Major", "doc_number": "Minor", "version": "Minor", "tool_version": "Minor", "other": "Observation"},
+  "conditional_items_downgrade": true
+}

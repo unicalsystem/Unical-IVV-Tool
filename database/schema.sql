@@ -1,5 +1,5 @@
 -- Unical DO-178B / DO-178C IV&V Review Tool - local SQLite schema
--- Schema version 1. The full data model is created in Phase 1 so later phases
+-- Schema version 2. The full data model is created in Phase 1 so later phases
 -- add behaviour, not tables. Review records are never overwritten: a re-review
 -- of the same document creates a new review_session with review_version + 1.
 
@@ -54,7 +54,11 @@ CREATE TABLE IF NOT EXISTS review_sessions (
     started_by      TEXT NOT NULL,
     started_at      TEXT NOT NULL,
     completed_at    TEXT,
-    notes           TEXT DEFAULT ''
+    notes           TEXT DEFAULT '',
+    checklist_id    INTEGER REFERENCES checklists(id),
+    recommendation  TEXT DEFAULT '',
+    results_json    TEXT DEFAULT '',   -- structure review, consistency results, engine notes
+    report_doc_no   TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS documents (
@@ -105,6 +109,7 @@ CREATE TABLE IF NOT EXISTS checklist_items (
                        CHECK (applicability IN ('Mandatory', 'Conditional', 'Not Applicable')),
     condition_text     TEXT DEFAULT '',      -- when Conditional: the condition
     review_guidance    TEXT DEFAULT '',
+    rule               TEXT,
     sort_order         INTEGER NOT NULL DEFAULT 0,
     UNIQUE (checklist_id, checklist_ref)
 );

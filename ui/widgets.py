@@ -77,6 +77,7 @@ def make_table(headers: list[str]) -> QTableWidget:
     table.setEditTriggers(QAbstractItemView.NoEditTriggers)
     table.setSelectionBehavior(QAbstractItemView.SelectRows)
     table.setAlternatingRowColors(False)
+    table.horizontalHeader().setSortIndicator(-1, Qt.AscendingOrder)  # keep the data order until the user sorts
     table.setSortingEnabled(True)
     table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
     table.horizontalHeader().setStretchLastSection(True)

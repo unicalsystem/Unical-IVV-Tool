@@ -1,110 +1,165 @@
 # Unical Systems – DO-178 IV&V Review Tool
 
 Offline desktop assistant for Unical IV&V engineers reviewing DO-178B / DO-178C
-life-cycle data (SOI-1 to SOI-4, DAL A to E). It helps the reviewer. It does not
-make certification decisions. Every finding must be approved by a qualified
-IV&V engineer before it is issued.
+life-cycle data (SOI-1 to SOI-4, DAL A to E). **The tool proposes, the engineer
+decides.** Every verdict carries evidence, and no finding is issued until a
+lead or admin approves it.
 
-**Current release:** 0.1.0, Phase 1 (Application Foundation).
-Architecture and phase plan: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
-## What works in Phase 1
-
-| Item | Status |
-|---|---|
-| Login page: logo, username, password, show/hide password, error message | Done |
-| Prototype login `admin` / `admin@123` (stored only as a salted PBKDF2 hash) | Done |
-| Lock-out after 5 failed attempts (15 minutes) | Done |
-| Dashboard: totals, completed, pending, findings, documents reviewed; recent reviews; recent activity | Done |
-| Sidebar navigation: Dashboard, New Review, Review History, Checklist Management, Document Library, Settings, About | Done (later-phase pages show their planned scope) |
-| Local SQLite database with the full data model (sessions, documents, checklists, findings, reports, audit log) | Done |
-| Audit log of logins, logouts and app start | Done |
-| Logging to `logs/application.log` (rotating) | Done |
-| Automated tests (26) | Passing |
+**Current release:** 1.0.0 (Phases 1–8 complete).
+Architecture and design decisions: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Download the Windows installer
 
-Every push to `main` is tested and built on Windows by GitHub Actions
-(`.github/workflows/build-windows.yml`). Download from the repository's
-**Releases** page:
+Every push to `main` is tested and built on Windows by GitHub Actions. Download
+from the **Releases** page (or the `exe-build` branch, folder `publish/`):
 
-- `UnicalIVVTool_Setup_<version>.exe`: standalone installer, one file with
-  Python, Qt and all libraries inside. Adds Start Menu and desktop shortcuts and
-  an uninstaller. No admin rights needed.
+- `UnicalIVVTool_Setup_1.0.0.exe`: standalone installer, one file with Python,
+  Qt and all libraries inside. Start Menu and desktop shortcuts, uninstaller,
+  no admin rights needed.
 - `UnicalIVVTool_Portable.exe`: a single exe that runs without installing.
 
-User data (database, logs, reports, uploads, editable config) is kept in
-`%LOCALAPPDATA%\Unical Systems\IVV Review Tool`. It is not removed on
-uninstall or upgrade.
+User data (database, logs, reports, uploads, editable config and edited
+checklists) is kept in `%LOCALAPPDATA%\Unical Systems\IVV Review Tool`. It is
+kept on uninstall and upgrade.
 
-## Install and run on Windows (from source)
+First sign-in: `admin` / `admin@123` (prototype account, stored only as a
+salted PBKDF2 hash). Add named users in **Settings** and stop using the
+prototype account before production use.
 
-You need Windows 10 or 11 (64-bit) and Python 3.11 or later from python.org
-("Add python.exe to PATH" ticked).
+## How a review runs
+
+1. **New Review → Step 1:** choose DO-178B or DO-178C, the DAL (A–E) and the SOI.
+2. **Step 2:** choose the document type (only the types for that SOI are listed),
+   fill the project details, and browse to the document (PDF, DOCX, XLSX, TXT).
+   - Optional: a user checklist (XLSX, DOCX or PDF). The tool asks whether to use
+     the **Built-in**, the **User** or the **Combined** checklist.
+   - Optional: companion documents (for example the PSAC when reviewing the SVP)
+     for the cross-document consistency checks.
+   - **Validate** checks the file and identifies the document from its content.
+     A wrong type, an unrelated document, or a DAL / standard conflict is reported
+     before the review starts.
+3. **Step 3:** the review runs in the background (it can be cancelled).
+4. **Review Results:**
+   - *Findings*: approve, reject, edit, add a manual finding, approve all.
+   - *Checklist Assessment*: every check with verdict, evidence and page. Change a
+     verdict, set the same verdict for several checks at once, or raise a finding
+     from a check.
+   - *Structure & Consistency*: sections found, companion consistency, documents
+     referenced but not supplied.
+   - **Finalise** (all draft findings decided), then **Reports** generates the
+     Unical Excel checklist and Word review report from the reference templates.
+5. **Review History** finds any earlier review and re-exports its reports. A
+   re-review of the same document is stored as a new version; nothing is
+   overwritten.
+
+### Verdicts
+
+| Code | Meaning |
+|---|---|
+| C | Compliant – evidence quoted |
+| PC | Partially compliant |
+| NC | Not compliant |
+| NA | Not applicable (reason required, e.g. not required at this DAL) |
+| NR | Not verified yet – the reviewer must conclude |
+| PCL | Pending clarification from the applicant |
+| PMR | Pending manual review – the tool could not reach a reliable conclusion |
+
+In rule-based mode (no local AI) only deterministic checks get an automatic
+verdict (document number, version/date, signatories, revision history, DAL
+statement, abbreviations, references, placeholders such as TBD, broken
+cross-references). Other checks are left **NR** with the candidate evidence
+the tool found, so the reviewer concludes. A missing statement is never taken
+as proof that an activity was not done.
+
+## Built-in checklists
+
+| SOI | DO-178C | DO-178B (derived, pending validation) |
+|---|---|---|
+| SOI-1 | PSAC 198, SDP 131, SVP 102, SCMP 80, SQAP 87, SRS 33, SDS 33, SCS 31, IVVP 34 | same documents |
+| SOI-2 | SRD 39, SDD 42, Source Code 33, Trace Data 37 | SRD, SDD, Source Code |
+| SOI-3 | SVCP 37, SVR 80, PR 29 | SVCP, SVR, PR |
+| SOI-4 | SAS 34, SCI 34, SECI 25, SCMR 30, SQAR 30 | same documents |
+
+- Sheets: A Document Control, B Template Compliance, C DO-178 Objectives
+  (Annex A, filtered by DAL), D Traceability, E Auditability, F Content Depth.
+- The five plan checklists were imported from Unical's own review checklists
+  (definitions only, no project data). The others were written from DO-178C
+  Section 11 and Annex A.
+- DO-178C Annex A was transcribed from the standard and checked: applicable
+  objectives A 71 / B 69 / C 62 / D 26.
+- **DO-178B:** Annex A is not encoded (no copy of DO-178B was available). The
+  DO-178B checklists have DO-178C-only content removed and are marked *not
+  validated*. The IV&V Lead should confirm the section references and mark them
+  validated in **Checklist Management**.
+- Admins can edit, add, delete and validate checks, import another Unical
+  checklist workbook, or revert to the built-in version. Edits are saved in the
+  user data folder, not in the program folder.
+
+## Optional add-ons (offline)
+
+- **OCR for scanned PDFs:** install Tesseract OCR for Windows
+  (default folder `C:\Program Files\Tesseract-OCR`). The tool finds it
+  automatically. Without it, scanned pages are reported and left for manual
+  review.
+- **Local AI assistant:** install Ollama and pull a model, for example
+  `ollama pull llama3.1:8b-instruct-q4_K_M`. In **Settings → Local AI** enable
+  it and press *Test connection*. Only `127.0.0.1` / `localhost` endpoints are
+  accepted. The AI must quote the document word for word; an unverified quote or
+  low confidence becomes PMR, and all AI findings stay *Draft* until approved.
+
+## Run from source
+
+Windows 10/11 64-bit, Python 3.11 or later.
 
 ```bat
-cd Unical_DO178_IVV_Tool
 setup.bat      :: one time - creates .venv, installs packages, runs tests
 run.bat        :: starts the application
+build_exe.bat  :: builds dist\UnicalIVVTool\UnicalIVVTool.exe
 ```
 
-Or do the same by hand:
+Offline PC: on a PC with internet run `pip download -r requirements.txt -d wheels`,
+copy `wheels` across, then `setup.bat wheels`.
 
-```bat
-py -3.11 -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python -m pytest -q
-python main.py
-```
+## Tests
 
-**Offline machines:** on a PC with internet, run
-`pip download -r requirements.txt -d wheels`. Copy the `wheels` folder to the
-offline PC, then run `setup.bat wheels`.
-
-**Expected result:** the login window opens. Sign in with `admin` / `admin@123`
-to open the dashboard. A wrong password shows "Invalid username or password."
-
-## Build a Windows executable
-
-```bat
-build_exe.bat
-```
-
-This produces `dist\UnicalIVVTool\UnicalIVVTool.exe`. The one-folder build keeps
-`config`, `database`, `logs`, `reports` and `templates` next to the exe.
-
-## Run the tests
-
-```bat
-python -m pytest -q
-```
-
-The tests cover:
-- authentication: valid, invalid username, invalid password, empty, lock-out, hashing, audit;
-- database: schema, constraints, review versioning, dashboard counts;
-- headless UI: login, show/hide password, dashboard, navigation.
+`python -m pytest -q` – 89 tests:
+- authentication, database, app paths, headless UI;
+- upload validation: valid, corrupted, empty, unsupported, wrong extension,
+  scanned, password-protected;
+- identification of PSAC, SDP, SVP, SCMP, SQAP, SRD, SDD, SVCP, SAS; wrong type,
+  unrelated document, DAL conflict;
+- checklist library, user checklists (XLSX/DOCX/PDF), combined mode, workbook import;
+- review engine: missing / incomplete sections, placeholders, traceable findings,
+  severity rationale, NA by DAL, DAL E, cross-document inconsistency,
+  recommendation;
+- local AI with a mock server: remote endpoint refused, fallback to rules,
+  verified quote accepted, invented quote → PMR, low confidence → PMR;
+- service end to end, re-review versioning, finalise rules, history search;
+- Excel / Word reports from the templates: sheets, finding numbers, check count,
+  formulas, no overwrite.
 
 ## Folder layout
 
 ```text
 main.py                 entry point
-config/                 app_config.json, model_config.json (local LLM, used from Phase 6)
-core/                   app_context (paths, config, logging), authentication
-database/               schema.sql, db_manager.py, unical_ivv.db (created on first run)
-ui/                     theme, widgets, login_window, main_window, dashboard
-standards/do178b|do178c objective tables per standard (Phase 4)
-checklists/soi1..soi4   built-in checklists, JSON (Phase 4)
-templates/excel|word    Unical review checklist + review report reference templates
-reports/ uploaded_documents/ logs/   runtime data
+config/                 app_config.json, model_config.json, severity_rules.json
+core/                   services: validator, parser, classifier, checklist engine,
+                        review engine, traceability, severity, ai_agent, reports
+database/               schema.sql, db_manager.py
+ui/                     PySide6 pages and dialogs
+standards/do178c        Annex A objective tables (verified)
+checklists/DO-178B|C    built-in checklists, JSON, per SOI and document
+templates/excel|word    Unical reference templates for the reports
+tools/                  checklist build scripts
+installer/              Inno Setup script
 tests/                  pytest suite
-docs/ARCHITECTURE.md    architecture, decisions, checklist model, phase plan
 ```
 
-## Security notes
+## Security
 
-- The prototype account is for development only. It will be replaced by proper
-  user management before production use.
-- No network calls are made. There are no cloud APIs, no remote database and no
-  online authentication. The local LLM (Phase 6) is restricted to `127.0.0.1`.
-- Configured paths are resolved inside the application folder only.
+- Fully offline: no cloud APIs, no remote database, no online authentication.
+- Uploaded documents are treated as untrusted: they are copied read-only into
+  the session folder and only read as text; macros and scripts are never run.
+- Passwords are stored only as salted PBKDF2 hashes; 5 failed attempts lock the
+  account for 15 minutes. Every login, review, verdict change, approval and
+  report is in the audit log.

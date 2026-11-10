@@ -2,7 +2,7 @@
 ; Produces ONE self-contained setup .exe (Python, Qt and all libraries inside).
 #define AppName "Unical DO-178 IV&V Review Tool"
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "1.0.0"
 #endif
 #define AppExe "UnicalIVVTool.exe"
 

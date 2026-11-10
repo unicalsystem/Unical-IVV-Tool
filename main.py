@@ -26,6 +26,8 @@ class Application:
         self.ctx = load_context()
         setup_logging(self.ctx)
         log.info("Starting %s %s", self.ctx.config["app_name"], self.ctx.config["version"])
+        from core import checklist_engine
+        checklist_engine.set_user_root(self.ctx.root / "checklists_user")
         self.db = DatabaseManager(self.ctx.db_path)
         self.db.initialise()
         sec = self.ctx.config["security"]

@@ -1,6 +1,6 @@
 # Architecture – Unical DO-178B / DO-178C IV&V Review Tool
 
-Version 0.1 (Phase 1) · Unical Systems · Internal
+Version 1.0 (Phases 1–8) · Unical Systems · Internal
 
 ## 1. Purpose and guiding rule
 
@@ -83,7 +83,9 @@ The modules are kept separate as follows:
 | D14 | DAL applicability | Taken from the DO-178C / DO-178B Annex A tables, encoded per objective with independence flags in `standards/` | Applicability is not invented; it is filled from the standard and checked by a lead |
 | D15 | DAL E | No DO-178B/C compliance findings; the review is limited to document control and plan consistency | As per requirement |
 | D16 | Supplements | DO-330/331/332/333 apply only to DO-178C, and only when the PSAC claims them | Never applied to DO-178B |
-| D17 | Distribution | PyInstaller one-folder build, Windows 10/11 x64 | Data folders stay next to the exe |
+| D17 | Distribution | Inno Setup installer around a PyInstaller one-folder build, plus a one-file portable exe; Windows 10/11 x64 | User data in `%LOCALAPPDATA%\Unical Systems\IVV Review Tool`; bundled checklists/templates read-only, edits saved as user overrides |
+| D18 | Rule-based verdicts | Deterministic rules decide only document-control and auditability checks; other checks become NR with candidate evidence | Keyword matching is not evidence of compliance; the reviewer or the local AI (with a verified quote) concludes |
+| D19 | DO-178B | Checklists derived from DO-178C with DO-178C-only content removed, marked *not validated*; Annex A not encoded | No DO-178B copy available; nothing invented |
 
 ## 5. Checklist model
 
@@ -108,7 +110,7 @@ Each checklist item stores these fields:
 - Review guidance
 - Sort order
 
-### 5.1 Planned improvements to the existing Unical checklists (Phase 4)
+### 5.1 Improvements to the existing Unical checklists (Phase 4)
 
 The existing checklists are a strong base. They have about 600 checks across the
 five plans: PSAC 198, SDP 131, SVP 102, SCMP 80, SQAP 87. The points below are
@@ -125,6 +127,12 @@ what the tool needs from them, and what certification approval needs from them.
 | 7 | Closure re-review is done by hand | Add an R2 closure-verification sheet (round-2 status per finding), as already used for the ASM round-2 reviews |
 | 8 | No overall readiness statement | Add a per-SOI readiness assessment. It lists the open Majors that block submission, the Minors to fix in the next issue, and a clear recommendation, so the authority sees a decision-ready summary |
 
+Status in 1.0: items 1–6 are done (DO-178B variants pending validation, see D19).
+Item 8 is provided as the overall recommendation (ACCEPTABLE / ACCEPTABLE WITH
+COMMENTS / NOT ACCEPTABLE / REVIEW INCOMPLETE) driven by open Major/Minor
+findings and unverified checks. Item 7 (R2 closure sheet) is handled by a
+re-review with round = Closure; a dedicated closure sheet is a later enhancement.
+
 None of these changes alters the wording of existing checks. User-uploaded
 checklists keep their original wording, as required.
 
@@ -135,23 +143,23 @@ checklists keep their original wording, as required.
 - The model never claims an objective is met without a quote, never invents page numbers or references, and never makes a certification decision.
 - AI findings are tagged `origin = AI` and need human approval.
 
-## 7. Phase plan
+## 7. Phase plan and status
 
-| Phase | Scope | Exit check |
+| Phase | Scope | Status |
 |---|---|---|
-| 1 | Foundation: login, dashboard, SQLite, logging, packaging scripts | 26 tests pass; app runs on Windows (**this release**) |
-| 2 | Workflow: standard → DAL → SOI → document type → upload → file validation | AC-04 to AC-07 |
-| 3 | Parsing, scanned-PDF detection, OCR, content-based classification | AC-08, AC-09 |
-| 4 | Checklist engine: import of the Unical checklists, improvements in 5.1, user / combined checklists, checklist manager | AC-10, AC-11 |
-| 5 | Review engine: structure, section, technical and cross-document checks; findings; severity | AC-12 to AC-14 |
-| 6 | Local AI agent with rule-based fallback and the human approval workflow | AC-21, AC-22 |
-| 7 | Excel and Word reports in the Unical templates; results page; history | AC-15 to AC-19 |
-| 8 | Full test, offline test, performance, PyInstaller executable | AC-01, AC-20 |
+| 1 | Foundation: login, dashboard, SQLite, logging, packaging scripts | Done |
+| 2 | Workflow: standard → DAL → SOI → document type → upload → file validation | Done |
+| 3 | Parsing, scanned-PDF detection, OCR (local Tesseract), content-based classification, relevance | Done |
+| 4 | Checklist engine: 41 built-in checklists, user / combined checklists, checklist manager | Done (DO-178B pending validation) |
+| 5 | Review engine: structure, rules, cross-document consistency, findings, severity with rationale | Done |
+| 6 | Local AI agent (Ollama, loopback only) with quote verification, rule-based fallback, approval workflow | Done |
+| 7 | Excel and Word reports in the Unical templates; results page; history; document library | Done |
+| 8 | 89 automated tests, Windows CI build, installer and portable exe | Done |
 
 ## 8. Open points for Unical
 
 1. **Local LLM machine:** confirm the reviewers' laptop specification (RAM / GPU). This fixes the model size.
-2. **Built-in checklists:** confirm the Unical checklist workbooks to import first. The proposal is the five MSU plan checklists, then the ASM ones.
+2. **Built-in checklists:** the five plan checklists were imported from the MSU/ASM workbooks; the IV&V Lead should review the authored SOI-2 to SOI-4 checklists and mark them validated.
 3. **Template variants:** confirm whether other authorities' templates (FAA / EASA style) are needed alongside CEMILAC / RCMA.
 4. **DO-178B Annex A source:** the DO-178C standard is available. A copy of DO-178B is needed to build its objective tables without guessing.
 5. **Finding approval:** confirm who approves findings (IV&V Lead only, or any reviewer).

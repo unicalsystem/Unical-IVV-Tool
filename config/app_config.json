@@ -1,7 +1,7 @@
 {
   "app_name": "Unical Systems - DO-178 IV&V Review Tool",
   "app_short_name": "Unical IV&V Review Tool",
-  "version": "0.1.0 (Phase 1 - Foundation)",
+  "version": "1.0.0",
   "company": "Unical Systems",
   "database_file": "database/unical_ivv.db",
   "log_file": "logs/application.log",
@@ -18,5 +18,26 @@
     "window_width": 1280,
     "window_height": 800,
     "recent_activity_rows": 15
+  },
+  "report": {
+    "signatories": {
+      "prepared": {
+        "name": "",
+        "designation": "IV&V Engineer"
+      },
+      "checked": {
+        "name": "",
+        "designation": "IV&V Lead"
+      },
+      "approved": {
+        "name": "",
+        "designation": "IV&V Manager"
+      }
+    },
+    "default_customer": "the applicant",
+    "classification": ""
+  },
+  "review": {
+    "use_ocr": true
   }
 }

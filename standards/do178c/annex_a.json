@@ -1,0 +1,1116 @@
+{
+ "standard": "DO-178C",
+ "source": "RTCA DO-178C (13 Dec 2011) Annex A, Tables A-1 to A-10. Transcribed from the scanned copy held by Unical and cross-checked: 71/69/62/26 objectives for Levels A/B/C/D; 30 objectives with independence at Level A.",
+ "legend": {
+  "I": "Objective applies and must be satisfied with independence",
+  "Y": "Objective applies",
+  "absent": "Satisfaction of the objective is at the applicant's discretion"
+ },
+ "tables": [
+  {
+   "id": "A-1",
+   "title": "Software Planning Process",
+   "objectives": [
+    {
+     "id": "A-1 obj 1",
+     "number": 1,
+     "description": "The activities of the software life cycle processes are defined.",
+     "ref": "4.1.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "PSAC",
+      "SDP",
+      "SVP",
+      "SCMP",
+      "SQAP"
+     ]
+    },
+    {
+     "id": "A-1 obj 2",
+     "number": 2,
+     "description": "The software life cycle(s), including the inter-relationships between the processes, their sequencing, feedback mechanisms, and transition criteria, is defined.",
+     "ref": "4.1.b",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "PSAC",
+      "SDP",
+      "SVP",
+      "SCMP",
+      "SQAP"
+     ]
+    },
+    {
+     "id": "A-1 obj 3",
+     "number": 3,
+     "description": "Software life cycle environment is selected and defined.",
+     "ref": "4.1.c",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "PSAC",
+      "SDP",
+      "SVP",
+      "SCMP",
+      "SQAP"
+     ]
+    },
+    {
+     "id": "A-1 obj 4",
+     "number": 4,
+     "description": "Additional considerations are addressed.",
+     "ref": "4.1.d",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "PSAC",
+      "SDP",
+      "SVP",
+      "SCMP",
+      "SQAP"
+     ]
+    },
+    {
+     "id": "A-1 obj 5",
+     "number": 5,
+     "description": "Software development standards are defined.",
+     "ref": "4.1.e",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SRS",
+      "SDS",
+      "SCS"
+     ]
+    },
+    {
+     "id": "A-1 obj 6",
+     "number": 6,
+     "description": "Software plans comply with this document.",
+     "ref": "4.1.f",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-1 obj 7",
+     "number": 7,
+     "description": "Development and revision of software plans are coordinated.",
+     "ref": "4.1.g",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-2",
+   "title": "Software Development Processes",
+   "objectives": [
+    {
+     "id": "A-2 obj 1",
+     "number": 1,
+     "description": "High-level requirements are developed.",
+     "ref": "5.1.1.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SRD",
+      "TRACE"
+     ]
+    },
+    {
+     "id": "A-2 obj 2",
+     "number": 2,
+     "description": "Derived high-level requirements are defined and provided to the system processes, including the system safety assessment process.",
+     "ref": "5.1.1.b",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SRD"
+     ]
+    },
+    {
+     "id": "A-2 obj 3",
+     "number": 3,
+     "description": "Software architecture is developed.",
+     "ref": "5.2.1.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SDD"
+     ]
+    },
+    {
+     "id": "A-2 obj 4",
+     "number": 4,
+     "description": "Low-level requirements are developed.",
+     "ref": "5.2.1.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SDD",
+      "TRACE"
+     ]
+    },
+    {
+     "id": "A-2 obj 5",
+     "number": 5,
+     "description": "Derived low-level requirements are defined and provided to the system processes, including the system safety assessment process.",
+     "ref": "5.2.1.b",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SDD"
+     ]
+    },
+    {
+     "id": "A-2 obj 6",
+     "number": 6,
+     "description": "Source Code is developed.",
+     "ref": "5.3.1.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "CODE",
+      "TRACE"
+     ]
+    },
+    {
+     "id": "A-2 obj 7",
+     "number": 7,
+     "description": "Executable Object Code and Parameter Data Item Files, if any, are produced and loaded in the target computer.",
+     "ref": "5.4.1.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "EOC",
+      "PDI"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-3",
+   "title": "Verification of Outputs of Software Requirements Process",
+   "objectives": [
+    {
+     "id": "A-3 obj 1",
+     "number": 1,
+     "description": "High-level requirements comply with system requirements.",
+     "ref": "6.3.1.a",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-3 obj 2",
+     "number": 2,
+     "description": "High-level requirements are accurate and consistent.",
+     "ref": "6.3.1.b",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-3 obj 3",
+     "number": 3,
+     "description": "High-level requirements are compatible with target computer.",
+     "ref": "6.3.1.c",
+     "levels": {
+      "A": "Y",
+      "B": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-3 obj 4",
+     "number": 4,
+     "description": "High-level requirements are verifiable.",
+     "ref": "6.3.1.d",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-3 obj 5",
+     "number": 5,
+     "description": "High-level requirements conform to standards.",
+     "ref": "6.3.1.e",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-3 obj 6",
+     "number": 6,
+     "description": "High-level requirements are traceable to system requirements.",
+     "ref": "6.3.1.f",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-3 obj 7",
+     "number": 7,
+     "description": "Algorithms are accurate.",
+     "ref": "6.3.1.g",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-4",
+   "title": "Verification of Outputs of Software Design Process",
+   "objectives": [
+    {
+     "id": "A-4 obj 1",
+     "number": 1,
+     "description": "Low-level requirements comply with high-level requirements.",
+     "ref": "6.3.2.a",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 2",
+     "number": 2,
+     "description": "Low-level requirements are accurate and consistent.",
+     "ref": "6.3.2.b",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 3",
+     "number": 3,
+     "description": "Low-level requirements are compatible with target computer.",
+     "ref": "6.3.2.c",
+     "levels": {
+      "A": "Y",
+      "B": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 4",
+     "number": 4,
+     "description": "Low-level requirements are verifiable.",
+     "ref": "6.3.2.d",
+     "levels": {
+      "A": "Y",
+      "B": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 5",
+     "number": 5,
+     "description": "Low-level requirements conform to standards.",
+     "ref": "6.3.2.e",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 6",
+     "number": 6,
+     "description": "Low-level requirements are traceable to high-level requirements.",
+     "ref": "6.3.2.f",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 7",
+     "number": 7,
+     "description": "Algorithms are accurate.",
+     "ref": "6.3.2.g",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 8",
+     "number": 8,
+     "description": "Software architecture is compatible with high-level requirements.",
+     "ref": "6.3.3.a",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 9",
+     "number": 9,
+     "description": "Software architecture is consistent.",
+     "ref": "6.3.3.b",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 10",
+     "number": 10,
+     "description": "Software architecture is compatible with target computer.",
+     "ref": "6.3.3.c",
+     "levels": {
+      "A": "Y",
+      "B": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 11",
+     "number": 11,
+     "description": "Software architecture is verifiable.",
+     "ref": "6.3.3.d",
+     "levels": {
+      "A": "Y",
+      "B": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 12",
+     "number": 12,
+     "description": "Software architecture conforms to standards.",
+     "ref": "6.3.3.e",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-4 obj 13",
+     "number": 13,
+     "description": "Software partitioning integrity is confirmed.",
+     "ref": "6.3.3.f",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-5",
+   "title": "Verification of Outputs of Software Coding & Integration Processes",
+   "objectives": [
+    {
+     "id": "A-5 obj 1",
+     "number": 1,
+     "description": "Source Code complies with low-level requirements.",
+     "ref": "6.3.4.a",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 2",
+     "number": 2,
+     "description": "Source Code complies with software architecture.",
+     "ref": "6.3.4.b",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 3",
+     "number": 3,
+     "description": "Source Code is verifiable.",
+     "ref": "6.3.4.c",
+     "levels": {
+      "A": "Y",
+      "B": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 4",
+     "number": 4,
+     "description": "Source Code conforms to standards.",
+     "ref": "6.3.4.d",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 5",
+     "number": 5,
+     "description": "Source Code is traceable to low-level requirements.",
+     "ref": "6.3.4.e",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 6",
+     "number": 6,
+     "description": "Source Code is accurate and consistent.",
+     "ref": "6.3.4.f",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 7",
+     "number": 7,
+     "description": "Output of software integration process is complete and correct.",
+     "ref": "6.3.5.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 8",
+     "number": 8,
+     "description": "Parameter Data Item File is correct and complete.",
+     "ref": "6.6.a",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVCP",
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-5 obj 9",
+     "number": 9,
+     "description": "Verification of Parameter Data Item File is achieved.",
+     "ref": "6.6.b",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-6",
+   "title": "Testing of Outputs of Integration Process",
+   "objectives": [
+    {
+     "id": "A-6 obj 1",
+     "number": 1,
+     "description": "Executable Object Code complies with high-level requirements.",
+     "ref": "6.4.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVCP",
+      "SVR",
+      "TRACE"
+     ]
+    },
+    {
+     "id": "A-6 obj 2",
+     "number": 2,
+     "description": "Executable Object Code is robust with high-level requirements.",
+     "ref": "6.4.b",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVCP",
+      "SVR",
+      "TRACE"
+     ]
+    },
+    {
+     "id": "A-6 obj 3",
+     "number": 3,
+     "description": "Executable Object Code complies with low-level requirements.",
+     "ref": "6.4.c",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVCP",
+      "SVR",
+      "TRACE"
+     ]
+    },
+    {
+     "id": "A-6 obj 4",
+     "number": 4,
+     "description": "Executable Object Code is robust with low-level requirements.",
+     "ref": "6.4.d",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVCP",
+      "SVR",
+      "TRACE"
+     ]
+    },
+    {
+     "id": "A-6 obj 5",
+     "number": 5,
+     "description": "Executable Object Code is compatible with target computer.",
+     "ref": "6.4.e",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVCP",
+      "SVR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-7",
+   "title": "Verification of Verification Process Results",
+   "objectives": [
+    {
+     "id": "A-7 obj 1",
+     "number": 1,
+     "description": "Test procedures are correct.",
+     "ref": "6.4.5.b",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 2",
+     "number": 2,
+     "description": "Test results are correct and discrepancies explained.",
+     "ref": "6.4.5.c",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 3",
+     "number": 3,
+     "description": "Test coverage of high-level requirements is achieved.",
+     "ref": "6.4.4.a",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 4",
+     "number": 4,
+     "description": "Test coverage of low-level requirements is achieved.",
+     "ref": "6.4.4.b",
+     "levels": {
+      "A": "I",
+      "B": "Y",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 5",
+     "number": 5,
+     "description": "Test coverage of software structure (modified condition/decision coverage) is achieved.",
+     "ref": "6.4.4.c",
+     "levels": {
+      "A": "I"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 6",
+     "number": 6,
+     "description": "Test coverage of software structure (decision coverage) is achieved.",
+     "ref": "6.4.4.c",
+     "levels": {
+      "A": "I",
+      "B": "I"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 7",
+     "number": 7,
+     "description": "Test coverage of software structure (statement coverage) is achieved.",
+     "ref": "6.4.4.c",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 8",
+     "number": 8,
+     "description": "Test coverage of software structure (data coupling and control coupling) is achieved.",
+     "ref": "6.4.4.d",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "Y"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    },
+    {
+     "id": "A-7 obj 9",
+     "number": 9,
+     "description": "Verification of additional code, that cannot be traced to Source Code, is achieved.",
+     "ref": "6.4.4.c",
+     "levels": {
+      "A": "I"
+     },
+     "outputs": [
+      "SVR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-8",
+   "title": "Software Configuration Management Process",
+   "objectives": [
+    {
+     "id": "A-8 obj 1",
+     "number": 1,
+     "description": "Configuration items are identified.",
+     "ref": "7.1.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SCMR"
+     ]
+    },
+    {
+     "id": "A-8 obj 2",
+     "number": 2,
+     "description": "Baselines and traceability are established.",
+     "ref": "7.1.b",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SCI",
+      "SCMR"
+     ]
+    },
+    {
+     "id": "A-8 obj 3",
+     "number": 3,
+     "description": "Problem reporting, change control, change review, and configuration status accounting are established.",
+     "ref": "7.1.c-f",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "PR",
+      "SCMR"
+     ]
+    },
+    {
+     "id": "A-8 obj 4",
+     "number": 4,
+     "description": "Archive, retrieval, and release are established.",
+     "ref": "7.1.g",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SCMR"
+     ]
+    },
+    {
+     "id": "A-8 obj 5",
+     "number": 5,
+     "description": "Software load control is established.",
+     "ref": "7.1.h",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SCMR"
+     ]
+    },
+    {
+     "id": "A-8 obj 6",
+     "number": 6,
+     "description": "Software life cycle environment control is established.",
+     "ref": "7.1.i",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SECI",
+      "SCMR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-9",
+   "title": "Software Quality Assurance Process",
+   "objectives": [
+    {
+     "id": "A-9 obj 1",
+     "number": 1,
+     "description": "Assurance is obtained that software plans and standards are developed and reviewed for compliance with this document and for consistency.",
+     "ref": "8.1.a",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "I"
+     },
+     "outputs": [
+      "SQAR"
+     ]
+    },
+    {
+     "id": "A-9 obj 2",
+     "number": 2,
+     "description": "Assurance is obtained that software life cycle processes comply with approved software plans.",
+     "ref": "8.1.b",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "I",
+      "D": "I"
+     },
+     "outputs": [
+      "SQAR"
+     ]
+    },
+    {
+     "id": "A-9 obj 3",
+     "number": 3,
+     "description": "Assurance is obtained that software life cycle processes comply with approved software standards.",
+     "ref": "8.1.b",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "I"
+     },
+     "outputs": [
+      "SQAR"
+     ]
+    },
+    {
+     "id": "A-9 obj 4",
+     "number": 4,
+     "description": "Assurance is obtained that transition criteria for the software life cycle processes are satisfied.",
+     "ref": "8.1.c",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "I"
+     },
+     "outputs": [
+      "SQAR"
+     ]
+    },
+    {
+     "id": "A-9 obj 5",
+     "number": 5,
+     "description": "Assurance is obtained that software conformity review is conducted.",
+     "ref": "8.1.d",
+     "levels": {
+      "A": "I",
+      "B": "I",
+      "C": "I",
+      "D": "I"
+     },
+     "outputs": [
+      "SQAR"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "A-10",
+   "title": "Certification Liaison Process",
+   "objectives": [
+    {
+     "id": "A-10 obj 1",
+     "number": 1,
+     "description": "Communication and understanding between the applicant and the certification authority is established.",
+     "ref": "9.a",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "PSAC"
+     ]
+    },
+    {
+     "id": "A-10 obj 2",
+     "number": 2,
+     "description": "The means of compliance is proposed and agreement with the Plan for Software Aspects of Certification is obtained.",
+     "ref": "9.b",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "PSAC"
+     ]
+    },
+    {
+     "id": "A-10 obj 3",
+     "number": 3,
+     "description": "Compliance substantiation is provided.",
+     "ref": "9.c",
+     "levels": {
+      "A": "Y",
+      "B": "Y",
+      "C": "Y",
+      "D": "Y"
+     },
+     "outputs": [
+      "SAS",
+      "SCI"
+     ]
+    }
+   ]
+  }
+ ]
+}

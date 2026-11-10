@@ -27,14 +27,15 @@ jobs:
       - name: Build application (PyInstaller)
         shell: cmd
         run: |
-          pyinstaller --noconfirm --clean --windowed --name UnicalIVVTool --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" main.py
-          pyinstaller --noconfirm --clean --windowed --onefile --name UnicalIVVTool_Portable --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" main.py
+          pyinstaller --noconfirm --clean --windowed --name UnicalIVVTool --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" --add-data "checklists;checklists" --add-data "standards;standards" --collect-submodules pymupdf main.py
+          pyinstaller --noconfirm --clean --windowed --onefile --name UnicalIVVTool_Portable --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" --add-data "checklists;checklists" --add-data "standards;standards" --collect-submodules pymupdf main.py
       - name: Build installer (Inno Setup)
         shell: pwsh
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
           if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
-          & $iscc installer\UnicalIVVTool.iss
+          $ver = (Get-Content config\app_config.json | ConvertFrom-Json).version.Split(' ')[0]
+          & $iscc "/DAppVersion=$ver" installer\UnicalIVVTool.iss
           if ($LASTEXITCODE -ne 0) { exit 1 }
           Get-ChildItem Output, dist\UnicalIVVTool_Portable.exe | Select-Object Name, Length
       - uses: actions/upload-artifact@v4

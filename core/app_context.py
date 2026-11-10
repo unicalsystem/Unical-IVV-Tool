@@ -65,6 +65,11 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "uploads_folder": "uploaded_documents",
     "security": {"max_failed_logins": 5, "lockout_minutes": 15, "pbkdf2_iterations": 240000},
     "ui": {"theme": "light", "window_width": 1280, "window_height": 800, "recent_activity_rows": 15},
+    "report": {"signatories": {"prepared": {"name": "", "designation": "IV&V Engineer"},
+                               "checked": {"name": "", "designation": "IV&V Lead"},
+                               "approved": {"name": "", "designation": "IV&V Manager"}},
+               "default_customer": "the applicant", "classification": ""},
+    "review": {"use_ocr": True},
 }
 
 

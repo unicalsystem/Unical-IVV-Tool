@@ -1,10 +1,11 @@
 """IV&V review engine (Phase 5): structure review, checklist assessment (rule-based and
 optional local AI), cross-document consistency, finding generation and severity.
 
-The engine never treats an absent statement as proof that an activity was not done:
-items it cannot decide stay 'NR' (Not Verified) or 'PMR' for the reviewer. Every
-proposed finding carries the evidence (quote and page/section) or states that no
-evidence was found, and every finding is a Draft until a reviewer approves it.
+Every applicable checklist item receives a proposed verdict (C / PC / NC / NA / NR):
+deterministic rules for document-control checks, the evidence assessor (concept coverage
+with quoted text) for the others, or the local AI when enabled. Every proposed finding
+carries the evidence (quote and page/section) or states that no evidence was found, and
+every finding is a Draft until a reviewer approves it.
 """
 from __future__ import annotations
 
@@ -17,6 +18,7 @@ from typing import Callable
 from core.checklist_engine import applicability_for
 from core.constants import DOCUMENT_TYPES, doc_full_name
 from core.document_parser import ParsedDocument
+from core.evidence_assessor import EvidenceAssessor
 from core.severity_classifier import SeverityClassifier
 from core.traceability_engine import ConsistencyResult, compare, referenced_documents_not_supplied
 
@@ -311,7 +313,7 @@ class ReviewEngine:
         res.structure = self.structure_review(doc, doc_type)
 
         items = checklist["items"]
-        authored = "Authored" in checklist.get("origin", "")
+        assessor = EvidenceAssessor(doc, doc_type, [t for t, _ in companions])
         n = len(items)
         for i, item in enumerate(items):
             if is_cancelled():
@@ -325,48 +327,39 @@ class ReviewEngine:
                 a.verdict, a.evidence_state, a.observation = "NA", "Not Applicable", why
                 res.assessments.append(a)
                 continue
+            prefix = ""
             if item.get("applicability") == "Conditional":
-                a.observation = f"Conditional check ({item.get('condition')}). Confirm whether the condition applies. "
+                prefix = f"Conditional check ({item.get('condition')}). "
             rule = item.get("rule")
+            state = None
             if rule:
                 state, obs, quote, ref = run_rule(rule, doc)
-                a.evidence_state, a.evidence, a.page_ref = state, quote, ref
-                a.observation += obs
-                if state == "Not Present":
-                    a.verdict = "NC"
-                elif state in ("Present-Incomplete", "Present-Inconsistent"):
-                    a.verdict = "PC"
-                elif state == "Present":
-                    a.verdict = "C" if authored else "NR"
-                    if not authored:
-                        a.observation += " Evidence located by rule; reviewer to confirm against the full criterion."
-                else:
-                    a.verdict = "NR"
-            else:
-                hits = retrieve(doc, item)
-                if hits:
-                    score, header, text = hits[0]
-                    snippet = " ".join(text.split())[:300]
-                    a.evidence, a.page_ref = snippet, header
-                    a.evidence_state = "Cannot Verify"
-                    a.observation += f"Candidate evidence located in {header} (relevance {score:.0%}). Reviewer to " \
-                                     "assess against the criterion."
-                else:
-                    a.evidence_state = "Cannot Verify"
-                    a.observation += "No section clearly matching this check was located by keyword search. This is " \
-                                     "not proof that the content is missing; reviewer to confirm."
-                a.verdict = "NR"
-                if ai_ok:
+                if state != "Cannot Verify":
+                    a.evidence_state, a.evidence, a.page_ref = state, quote, ref
+                    a.observation = prefix + obs
+                    a.verdict = {"Not Present": "NC", "Present": "C"}.get(state, "PC")
+            if not rule or state == "Cannot Verify":
+                v = assessor.assess(item)
+                a.origin = "Rule"
+                a.verdict, a.evidence_state = v.verdict, v.evidence_state
+                a.observation, a.evidence, a.page_ref = prefix + v.observation, v.evidence, v.page_ref
+                if v.verdict == "NA":
+                    a.applicable, a.na_reason = False, v.observation
+                if ai_ok and v.verdict != "NA":
+                    hits = retrieve(doc, item)
                     ai = self.ai.assess(item, doc_type, standard, dal, soi,
                                         [(h, t) for _, h, t in hits] or [("full text", doc.text[:20000])], doc.text)
-                    a.origin = "AI"
-                    a.verdict, a.evidence_state = ai.verdict, ai.evidence_state
-                    a.observation = (a.observation if item.get("applicability") == "Conditional" else "") + \
-                        (ai.observation or ai.reasoning)
-                    if ai.quote:
-                        a.evidence = ai.quote
-                        a.page_ref = ", ".join(x for x in (f"p.{ai.page}" if ai.page else "", ai.section) if x) or a.page_ref
-                    a.recommendation = ai.recommendation
+                    if ai.verdict != "PMR" or v.verdict == "NR":
+                        a.origin = "AI"
+                        a.verdict, a.evidence_state = ai.verdict, ai.evidence_state
+                        a.observation = prefix + (ai.observation or ai.reasoning)
+                        if ai.quote:
+                            a.evidence = ai.quote
+                            a.page_ref = ", ".join(x for x in (f"p.{ai.page}" if ai.page else "", ai.section) if x) \
+                                or a.page_ref
+                        a.recommendation = ai.recommendation
+                    else:
+                        a.observation += " (Local AI could not confirm this with a verified quote.)"
             if dal == "E" and a.verdict in ("NC", "PC"):
                 a.observation += " (DAL E: recorded for information only.)"
             res.assessments.append(a)

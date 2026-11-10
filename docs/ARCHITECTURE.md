@@ -1,6 +1,6 @@
 # Architecture – Unical DO-178B / DO-178C IV&V Review Tool
 
-Version 1.0 (Phases 1–8) · Unical Systems · Internal
+Version 1.0.1 (Phases 1–8) · Unical Systems · Internal
 
 ## 1. Purpose and guiding rule
 
@@ -84,7 +84,7 @@ The modules are kept separate as follows:
 | D15 | DAL E | No DO-178B/C compliance findings; the review is limited to document control and plan consistency | As per requirement |
 | D16 | Supplements | DO-330/331/332/333 apply only to DO-178C, and only when the PSAC claims them | Never applied to DO-178B |
 | D17 | Distribution | Inno Setup installer around a PyInstaller one-folder build, plus a one-file portable exe; Windows 10/11 x64 | User data in `%LOCALAPPDATA%\Unical Systems\IVV Review Tool`; bundled checklists/templates read-only, edits saved as user overrides |
-| D18 | Rule-based verdicts | Deterministic rules decide only document-control and auditability checks; other checks become NR with candidate evidence | Keyword matching is not evidence of compliance; the reviewer or the local AI (with a verified quote) concludes |
+| D18 | Verdicts without AI | Rules decide document-control checks; `core/evidence_assessor.py` proposes C/PC/NC/NA/NR for every other check from concept coverage of the best passage (C ≥ 65%, PC ≥ 30% or topic present elsewhere, else NC), with quote, page and missing concepts | Thresholds calibrated against Unical's completed MSU SQAP and ASM SVP checklists; verdicts are proposals and findings stay Draft until approved |
 | D19 | DO-178B | Checklists derived from DO-178C with DO-178C-only content removed, marked *not validated*; Annex A not encoded | No DO-178B copy available; nothing invented |
 
 ## 5. Checklist model

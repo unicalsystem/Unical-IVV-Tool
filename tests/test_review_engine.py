@@ -171,10 +171,36 @@ def test_dal_e_no_findings(tmp_path):
     assert not res.findings and any("level E" in n for n in res.notes)
 
 
-def test_unverifiable_items_stay_not_verified(tmp_path):
+def test_every_check_gets_a_verdict(tmp_path):
     res = ReviewEngine().run(_psac(tmp_path), "PSAC", "DO-178C", "A", "SOI-1", load_builtin("DO-178C", "SOI-1", "PSAC"))
-    no_rule = [a for a in res.assessments if not a.item.get("rule") and a.applicable]
-    assert no_rule and all(a.verdict == "NR" for a in no_rule)  # rule mode never claims compliance by keyword
+    c = res.counts()
+    assert c["C"] and c["PC"] and c["NC"]
+    assert c["NR"] <= 0.1 * len(res.assessments)  # NR only when the text cannot be judged
+    for a in res.assessments:
+        assert a.observation
+        if a.verdict in ("C", "PC") and not a.item.get("rule"):
+            assert a.evidence and a.page_ref  # every C/PC quotes the text it relies on
+    assert len(res.findings) >= c["NC"] + c["PC"] - 1
+
+
+def test_evidence_assessor_verdicts(tmp_path):
+    from core.evidence_assessor import EvidenceAssessor
+    text = PSAC_TEXT + ("\n7 Tool Qualification\nThe structural coverage analysis tool VectorCAST version 7 is qualified "
+                        "at TQL-5 per DO-330. The tool qualification plan and tool accomplishment summary are produced "
+                        "and submitted to the certification authority with the PSAC.\n" * 2)
+    ea = EvidenceAssessor(parse_document(make_txt(tmp_path / "t.txt", text)), "PSAC")
+    present = ea.assess({"ref": "X1", "sheet": "F", "question": "The PSAC identifies each qualified tool, "
+                         "its TQL and the tool qualification plan.",
+                         "expected_evidence": "Tool name, TQL, tool qualification plan"})
+    assert present.verdict == "C" and ("VectorCAST" in present.evidence or "TQL" in present.evidence)
+    absent = ea.assess({"ref": "X2", "sheet": "F", "question": "Multiple-version dissimilar software and its "
+                        "arbitration voting mechanism are described.", "expected_evidence": "Dissimilarity rationale"})
+    assert absent.verdict == "NC" and "dissimilar" in absent.observation
+    partial = ea.assess({"ref": "X3", "sheet": "F", "question": "The tool qualification plan and tool "
+                         "accomplishment summary are submitted, and the tool operational requirements and anomaly "
+                         "reporting procedure are defined.",
+                         "expected_evidence": ""})
+    assert partial.verdict == "PC" and partial.missing
 
 
 def test_cross_document_inconsistency(tmp_path):

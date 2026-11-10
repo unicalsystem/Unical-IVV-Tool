@@ -49,7 +49,7 @@
    "applicability": "Mandatory",
    "condition": "",
    "guidance": "Check the front matter and identification against the authority template. Record exactly what is on the page (quote it) and where.",
-   "rule": "page_numbering"
+   "rule": null
   },
   {
    "ref": "A-04",
@@ -119,7 +119,7 @@
    "applicability": "Mandatory",
    "condition": "",
    "guidance": "Check the front matter and identification against the authority template. Record exactly what is on the page (quote it) and where.",
-   "rule": "signatories"
+   "rule": null
   },
   {
    "ref": "A-09",

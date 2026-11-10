@@ -5,7 +5,7 @@ life-cycle data (SOI-1 to SOI-4, DAL A to E). **The tool proposes, the engineer
 decides.** Every verdict carries evidence, and no finding is issued until a
 lead or admin approves it.
 
-**Current release:** 1.0.0 (Phases 1–8 complete).
+**Current release:** 1.0.1 (Phases 1–8 complete; every checklist item now gets a proposed verdict).
 Architecture and design decisions: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Download the Windows installer
@@ -13,7 +13,7 @@ Architecture and design decisions: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md
 Every push to `main` is tested and built on Windows by GitHub Actions. Download
 from the **Releases** page (or the `exe-build` branch, folder `publish/`):
 
-- `UnicalIVVTool_Setup_1.0.0.exe`: standalone installer, one file with Python,
+- `UnicalIVVTool_Setup_1.0.1.exe`: standalone installer, one file with Python,
   Qt and all libraries inside. Start Menu and desktop shortcuts, uninstaller,
   no admin rights needed.
 - `UnicalIVVTool_Portable.exe`: a single exe that runs without installing.
@@ -64,12 +64,28 @@ prototype account before production use.
 | PCL | Pending clarification from the applicant |
 | PMR | Pending manual review – the tool could not reach a reliable conclusion |
 
-In rule-based mode (no local AI) only deterministic checks get an automatic
-verdict (document number, version/date, signatories, revision history, DAL
-statement, abbreviations, references, placeholders such as TBD, broken
-cross-references). Other checks are left **NR** with the candidate evidence
-the tool found, so the reviewer concludes. A missing statement is never taken
-as proof that an activity was not done.
+How the verdicts are proposed without the local AI:
+- **Document-control checks** (document number, issue/date, signatories,
+  revision history, DAL statement, abbreviations, references, placeholders such
+  as TBD, broken cross-references) are decided by fixed rules.
+- **Every other check** is decided by evidence matching. The tool finds the
+  concepts the criterion asks for, searches every passage of the document, and
+  quotes the best passage with its page and section:
+  - **C**: the concepts are covered together in one substantive passage (65% coverage or more);
+  - **PC**: the topic is addressed but parts are missing, thin or still TBD (the missing points are listed);
+  - **NC**: the document has no text covering what the criterion asks for;
+  - **NA**: not required at the selected DAL, or a conditional check whose condition is not met;
+  - **NR**: the text cannot decide it (scanned pages, a very general criterion, or a check that needs a
+    companion document that was not supplied).
+- Every NC and PC becomes a draft finding with its severity and reason.
+
+Evidence matching shows whether a topic is covered; it cannot judge depth the
+way an experienced reviewer does. On Unical's own completed reviews it
+agreed with the reviewer on about half the checks (MSU SQAP 47 of 87). Its
+errors are mostly C versus PC; it rarely calls covered content NC. Treat the
+verdicts as a first pass: confirm or change them in the Checklist Assessment
+tab, and approve the findings before finalising. The local AI, when enabled,
+replaces the matcher's verdict wherever it can quote the document.
 
 ## Built-in checklists
 
@@ -122,7 +138,7 @@ copy `wheels` across, then `setup.bat wheels`.
 
 ## Tests
 
-`python -m pytest -q` – 89 tests:
+`python -m pytest -q` – 90 tests:
 - authentication, database, app paths, headless UI;
 - upload validation: valid, corrupted, empty, unsupported, wrong extension,
   scanned, password-protected;

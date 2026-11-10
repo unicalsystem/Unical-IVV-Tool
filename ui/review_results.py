@@ -349,9 +349,13 @@ class ReviewResultsPage(QWidget):
         notes = list(res.get("notes", []))
         if not cl.get("validated", True):
             notes.append("The checklist used is derived and pending validation by the IV&V Lead.")
+        decided = sum(counts.get(k, 0) for k in ("C", "PC", "NC"))
+        if decided and s.get("analysis_mode") != "AI-assisted":
+            notes.append(f"{decided} check(s) have a proposed verdict from rules and evidence matching (quoted text and "
+                         "page in the Checklist Assessment tab). Confirm or change them before finalising.")
         if counts.get("NR"):
-            notes.append(f"{counts['NR']} check(s) are Not Verified: the tool located candidate evidence but a reviewer "
-                         "must conclude them (double-click a check to set the verdict).")
+            notes.append(f"{counts['NR']} check(s) are Not Verified: they cannot be judged from the text alone; a "
+                         "reviewer must conclude them (double-click a check to set the verdict).")
         self.banner.setText("\n".join(notes))
         self.banner.setVisible(bool(notes))
         self.load_findings()

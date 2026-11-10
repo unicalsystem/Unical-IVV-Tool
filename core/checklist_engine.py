@@ -51,7 +51,7 @@ RULE_PATTERNS = [  # order matters: first match wins
     ("toc", r"table of contents|\bcontents\b"),
     ("abbreviations", r"acronym|abbreviation"),
     ("no_placeholders", r"tbd|tbc|placeholder|unresolved|error! reference"),
-    ("classification", r"security classification|classification field|restricted|confidential marking"),
+    ("classification", r"security classification|document classification|classification field|restricted|confidential marking"),
     ("committal_language", r"committal|'shall'|“shall”"),
     ("figures_tables", r"figures? and tables?.*number|numbered.*(figures|tables)"),
 ]
@@ -61,6 +61,10 @@ def guess_rule(question: str, sheet: str) -> str | None:
     if sheet not in ("A", "E"):
         return None
     q = question.lower()[:80]  # the subject of a check is stated at its start
+    # subjects no rule implements fully: leave them to the evidence matcher
+    if re.match(r"\W*(distribution list|copy no|every page carries the (standard )?footer|every page shall carry the "
+                r"(standard )?footer)", q):
+        return None
     for rule, pat in RULE_PATTERNS:
         if re.search(pat, q):
             return rule

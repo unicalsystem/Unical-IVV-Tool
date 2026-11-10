@@ -6,3 +6,4 @@ dist/
 *.spec
 database/*.db
 logs/*.log
+test-results.xml

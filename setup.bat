@@ -9,7 +9,7 @@ if "%~1"=="" (
 ) else (
     .venv\Scripts\python.exe -m pip install --no-index --find-links "%~1" -r requirements.txt
 )
-.venv\Scripts\python.exe -m pytest -q
+.venv\Scripts\python.exe -m pytest -q --junitxml=test-results.xml
 echo.
 echo Set-up complete. Start the tool with run.bat
 pause

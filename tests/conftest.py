@@ -52,7 +52,3 @@ def pytest_sessionfinish(session, exitstatus):
             app.processEvents()
     except Exception:
         pass
-    if sys.platform == "win32":
-        sys.stdout.flush()
-        sys.stderr.flush()
-        os._exit(int(exitstatus))

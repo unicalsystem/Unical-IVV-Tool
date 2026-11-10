@@ -12,7 +12,8 @@ if "%~1"=="" (
 ) else (
     .venv\Scripts\python.exe -m pip install --no-index --find-links "%~1" -r requirements.txt
 )
-.venv\Scripts\python.exe -m pytest -q || (echo Tests failed - build stopped. & pause & exit /b 1)
+.venv\Scripts\python.exe -m pytest -q --junitxml=test-results.xml
+.venv\Scripts\python.exe -c "import xml.etree.ElementTree as E,sys; r=E.parse('test-results.xml').getroot(); s=r if r.tag=='testsuite' else r[0]; sys.exit(0 if int(s.get('tests'))>0 and int(s.get('failures'))==0 and int(s.get('errors'))==0 else 1)" || (echo Tests failed - build stopped. & pause & exit /b 1)
 .venv\Scripts\pyinstaller.exe --noconfirm --clean --windowed --name UnicalIVVTool ^
   --icon NONE ^
   --add-data "assets;assets" ^

@@ -5,7 +5,10 @@ from core import app_context
 
 
 def test_frozen_build_uses_user_data_folder(tmp_path, monkeypatch):
+    from pathlib import Path
     monkeypatch.setattr(sys, "frozen", True, raising=False)
+    # PyInstaller unpacks bundled resources to sys._MEIPASS
+    monkeypatch.setattr(sys, "_MEIPASS", str(Path(app_context.__file__).resolve().parent.parent), raising=False)
     monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
     root = app_context.application_root()
     assert root == tmp_path / "Unical Systems" / "IVV Review Tool"

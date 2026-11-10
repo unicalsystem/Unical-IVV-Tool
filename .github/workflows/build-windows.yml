@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   push:
     branches: [unical-ivv-tool-build]
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: windows-latest
@@ -33,3 +35,15 @@ jobs:
         with:
           name: UnicalIVVTool-windows
           path: dist/UnicalIVVTool
+      - name: Publish zip to exe-build branch
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/UnicalIVVTool -DestinationPath UnicalIVVTool-windows.zip -CompressionLevel Optimal
+          Get-Item UnicalIVVTool-windows.zip | Select-Object Length
+          git config user.name "Unical Build"
+          git config user.email "noreply@unical.in"
+          git checkout --orphan exe-build
+          git rm -rf --cached . | Out-Null
+          git add -f UnicalIVVTool-windows.zip
+          git commit -m "Windows build ${{ github.sha }}"
+          git push -f origin exe-build

@@ -5,6 +5,7 @@ PySide6>=6.7,<7
 PyMuPDF>=1.24
 python-docx>=1.1
 openpyxl>=3.1
+Pillow>=10.0   # images in the Excel report (logo)
 pandas>=2.2
 PyYAML>=6.0
 

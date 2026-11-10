@@ -13,7 +13,7 @@ Architecture and design decisions: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md
 Every push to `main` is tested and built on Windows by GitHub Actions. Download
 from the **Releases** page (or the `exe-build` branch, folder `publish/`):
 
-- `UnicalIVVTool_Setup_1.0.2.exe`: standalone installer, one file with Python,
+- `UnicalIVVTool_Setup_1.0.3.exe`: standalone installer, one file with Python,
   Qt and all libraries inside. Start Menu and desktop shortcuts, uninstaller,
   no admin rights needed.
 - `UnicalIVVTool_Portable.exe`: a single exe that runs without installing.
@@ -80,6 +80,15 @@ How the verdicts are proposed without the local AI:
     companion document that was not supplied).
 - Every NC and PC becomes a draft finding with its severity and reason.
 
+**Where the evidence is.** Section numbers and titles come from the document's
+own table of contents: each contents entry is found as a heading in the body,
+and its number is taken from the heading (or rebuilt from the contents
+indentation / Word heading numbering when the number is not printed).
+Locations are written as **Page 29, Section 3.8 Fault Tolerance**. The page is
+the page of the file as a PDF viewer shows it. Word files have no fixed pages,
+so their locations give the section only. The Structure & Consistency tab lists
+every contents entry with the page where it was found.
+
 Evidence matching shows whether a topic is covered; it cannot judge depth the
 way an experienced reviewer does. On Unical's own completed reviews it
 agreed with the reviewer on about half the checks (MSU SQAP 47 of 87). Its
@@ -139,7 +148,7 @@ copy `wheels` across, then `setup.bat wheels`.
 
 ## Tests
 
-`python -m pytest -q` – 92 tests:
+`python -m pytest -q` – 95 tests:
 - authentication, database, app paths, headless UI;
 - upload validation: valid, corrupted, empty, unsupported, wrong extension,
   scanned, password-protected;

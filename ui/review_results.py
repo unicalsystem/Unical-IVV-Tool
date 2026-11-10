@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox, QFileDialog
 from core.app_context import AppContext
 from core.authentication import UserSession
 from core.constants import FINDING_STATUSES, SEVERITIES, VERDICTS, doc_full_name
+from core.refs import humanise
 from core.report_manager import generate_reports
 from core.review_service import ReviewService
 from core.severity_classifier import SeverityClassifier
@@ -374,8 +375,8 @@ class ReviewResultsPage(QWidget):
     def load_findings(self) -> None:
         self.findings = self.db.get_findings(self.sid)
         fill_table(self.f_table, [[f["finding_no"], f["approval_state"], f["severity"], f["status"],
-                                   f.get("checklist_refs") or "", f["observation"], f.get("evidence") or "",
-                                   f.get("page_ref") or "", f["recommendation"], f["severity_rationale"], f["origin"]]
+                                   f.get("checklist_refs") or "", humanise(f["observation"]), f.get("evidence") or "",
+                                   humanise(f.get("page_ref")), humanise(f["recommendation"]), f["severity_rationale"], f["origin"]]
                                   for f in self.findings], "No findings proposed.")
         for r, f in enumerate(self.findings):
             for c in (2,):
@@ -397,8 +398,8 @@ class ReviewResultsPage(QWidget):
                             and (vd == "All verdicts" or a["verdict"] == vd)
                             and (not tx or tx in (a["review_question"] + a["checklist_ref"] + (a["observation"] or "")).lower())]
         fill_table(self.a_table, [[a["checklist_ref"], a["sheet"], a["review_question"], a["dal_applicability"],
-                                   a["verdict"], a["evidence_state"] or "", a["observation"] or "", a["evidence"] or "",
-                                   a["page_ref"] or "", a.get("finding_nos") or "", a["origin"]] for a in self.assessments],
+                                   a["verdict"], a["evidence_state"] or "", humanise(a["observation"]), a["evidence"] or "",
+                                   humanise(a["page_ref"]), a.get("finding_nos") or "", a["origin"]] for a in self.assessments],
                    "No checks match the filter.")
         for r, a in enumerate(self.assessments):
             it = self.a_table.item(r, 4)
@@ -566,7 +567,8 @@ class ReviewResultsPage(QWidget):
         for a in self.db.get_assessments(self.sid):
             ws.append([a["checklist_ref"], a["sheet"], a["section_number"], a["review_question"], a["expected_evidence"],
                        a["reference"], a["dal_applicability"], a["applicability"], a["verdict"], a["evidence_state"],
-                       a["observation"], a["evidence"], a["page_ref"], a["recommendation"], a.get("finding_nos"),
+                       humanise(a["observation"]), a["evidence"], humanise(a["page_ref"]), a["recommendation"],
+                       a.get("finding_nos"),
                        a["origin"]])
         for col, w in zip("ABCDEFGHIJKLMNOP", (8, 6, 10, 60, 40, 24, 8, 12, 8, 16, 50, 40, 16, 40, 12, 8)):
             ws.column_dimensions[col].width = w

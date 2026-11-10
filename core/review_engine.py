@@ -19,6 +19,7 @@ from core.checklist_engine import applicability_for
 from core.constants import DOCUMENT_TYPES, doc_full_name
 from core.document_parser import ParsedDocument
 from core.evidence_assessor import EvidenceAssessor
+from core.refs import doc_location, location, page_ref, section_ref
 from core.severity_classifier import SeverityClassifier
 from core.traceability_engine import ConsistencyResult, compare, referenced_documents_not_supplied
 
@@ -100,10 +101,9 @@ class ReviewResult:
 
 
 # ------------------------------------------------------------------------------- rules
-def _ref(doc: ParsedDocument, page: int) -> str:
+def _ref(doc: ParsedDocument, page: int, snippet: str | None = None) -> str:
     if page and doc.file_type == "pdf":
-        sec = doc.section_at(page)
-        return f"p.{page}" + (f", Sec. {sec.number}" if sec and sec.number else "")
+        return doc_location(doc, page, snippet)
     return ""
 
 
@@ -112,7 +112,7 @@ def _first(doc: ParsedDocument, pattern: str) -> tuple[str, str] | None:
     if not hits:
         return None
     page, snip = hits[0]
-    return snip, _ref(doc, page)
+    return snip, _ref(doc, page, snip)
 
 
 def run_rule(rule: str, doc: ParsedDocument) -> tuple[str, str, str, str]:
@@ -121,13 +121,13 @@ def run_rule(rule: str, doc: ParsedDocument) -> tuple[str, str, str, str]:
     if rule == "cover_title":
         first = doc.page_texts[0] if doc.page_texts else ""
         if doc.title and doc.title[:30].lower() in first.lower():
-            return "Present", f"Title on the front page: '{doc.title}'.", doc.title, "p.1" if doc.file_type == "pdf" else ""
+            return "Present", f"Title on the front page: '{doc.title}'.", doc.title, "Page 1" if doc.file_type == "pdf" else ""
         if doc.title:
             return "Present-Incomplete", f"Title found ('{doc.title}') but not clearly on the front page.", doc.title, ""
-        return "Not Present", "No data-item title could be identified on the front page.", "", "p.1"
+        return "Not Present", "No data-item title could be identified on the front page.", "", "Page 1"
     if rule == "doc_number":
         if not doc.doc_number:
-            return "Not Present", "No document number found on the front pages.", "", "p.1-3"
+            return "Not Present", "No document number found on the front pages.", "", "Pages 1-3"
         if doc.file_type == "pdf":
             on_pages = sum(1 for pt in doc.page_texts if doc.doc_number in pt)
             missing_hf = on_pages < 0.5 * doc.page_count
@@ -143,7 +143,7 @@ def run_rule(rule: str, doc: ParsedDocument) -> tuple[str, str, str, str]:
         if doc.version or doc.date:
             return ("Present-Incomplete", f"Only {'version' if doc.version else 'date'} found "
                     f"('{doc.version or doc.date}').", doc.version or doc.date, "")
-        return "Not Present", "No issue/version or date found on the front pages.", "", "p.1-3"
+        return "Not Present", "No issue/version or date found on the front pages.", "", "Pages 1-3"
     if rule == "states_dal":
         if not doc.dal_mentions:
             return "Not Present", "No statement of the software level (e.g. 'Level A') found.", "", ""
@@ -195,9 +195,9 @@ def run_rule(rule: str, doc: ParsedDocument) -> tuple[str, str, str, str]:
                         r"Name|Doc|Date)[^>]{0,30}>|\bX{3,}\b", flags=0, limit=8)
         if not hits:
             return "Present", "No unresolved placeholders (TBD/TBC, broken references, template fields) found.", "", ""
-        quotes = "; ".join(f"{('p.' + str(p) + ': ') if p else ''}{s[:90]}" for p, s in hits[:4])
+        quotes = "; ".join(f"{('Page ' + str(p) + ': ') if p else ''}{s[:90]}" for p, s in hits[:4])
         return ("Present-Inconsistent", f"{len(hits)}{'+' if len(hits) == 8 else ''} unresolved placeholder(s) or "
-                f"broken field(s) found.", quotes, _ref(doc, hits[0][0]))
+                f"broken field(s) found.", quotes, _ref(doc, hits[0][0], hits[0][1]))
     if rule == "classification":
         hit = _first(doc, r"\b(restricted|confidential|secret|unclassified|unrestricted)\b")
         return ("Present", "Security classification marking found.", *hit) if hit else \
@@ -247,10 +247,9 @@ def retrieve(doc: ParsedDocument, item: dict, top: int = 3) -> list[tuple[float,
     kws = _keywords(f"{item.get('question', '')} {item.get('expected_evidence', '')} {item.get('section', '')}")
     if not kws:
         return []
-    units = [(f"Sec. {s.number} {s.title}".strip() + (f", p.{s.page_start}" if s.page_start else ""), s.text)
-             for s in doc.sections if s.text and len(s.text) > 40]
+    units = [(location(s.page_start, s), s.text) for s in doc.sections if s.text and len(s.text) > 40]
     if not units:
-        units = [(f"p.{i}" if doc.file_type == "pdf" else f"part {i}", t) for i, t in enumerate(doc.page_texts, 1)]
+        units = [(page_ref(i) if doc.file_type == "pdf" else f"part {i}", t) for i, t in enumerate(doc.page_texts, 1)]
     scored = []
     for header, text in units:
         low = text.lower()
@@ -284,9 +283,16 @@ class ReviewEngine:
             rows.append({"element": f"Section: {pat.split('|')[0]}",
                          "state": "Present" if found else ("Present" if re.search(pat, titles) else "Not found as heading"),
                          "detail": found.label if found else "No heading matched; content may exist under another title.",
-                         "where": f"p.{found.page_start}" if found and found.page_start else ""})
+                         "where": location(found.page_start, found) if found else ""})
         rows.append({"element": "Sections detected", "state": str(len(doc.sections)),
-                     "detail": f"{doc.page_count} page(s); file type {doc.file_type.upper()}", "where": ""})
+                     "detail": (f"Taken from the document's table of contents ({len(doc.toc)} entries located in the "
+                                f"body); {doc.page_count} page(s)" if doc.toc else
+                                f"No usable table of contents; headings detected from the text; {doc.page_count} "
+                                f"page(s); file type {doc.file_type.upper()}"), "where": ""})
+        for e in doc.toc:
+            rows.append({"element": section_ref(e.number, e.title), "state": "Present",
+                         "detail": f"Contents list gives page {e.printed_page}" if e.printed_page else "",
+                         "where": page_ref(e.page)})
         if doc.scanned_pages:
             rows.append({"element": "Scanned pages", "state": "Warning", "detail": "; ".join(doc.warnings), "where": ""})
         return rows
@@ -355,7 +361,8 @@ class ReviewEngine:
                         a.observation = prefix + (ai.observation or ai.reasoning)
                         if ai.quote:
                             a.evidence = ai.quote
-                            a.page_ref = ", ".join(x for x in (f"p.{ai.page}" if ai.page else "", ai.section) if x) \
+                            a.page_ref = ", ".join(x for x in (f"Page {ai.page}" if ai.page else "",
+                                                               f"Section {ai.section}" if ai.section else "") if x) \
                                 or a.page_ref
                         a.recommendation = ai.recommendation
                     else:

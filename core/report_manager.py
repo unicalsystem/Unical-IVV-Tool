@@ -20,6 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 from core.app_context import AppContext, bundled_resource
+from core.refs import humanise
 from core.constants import DOCUMENT_TYPES, RECOMMENDATIONS, SHEETS, VERDICTS, doc_full_name
 from database.db_manager import DatabaseManager
 
@@ -37,6 +38,15 @@ def safe_filename(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9_\-]+", "_", text).strip("_")[:80] or "Review"
 
 
+def _human(row: dict) -> dict:
+    """Write locations as 'Page 29, Section 3.8 ...' (also for reviews saved by older versions)."""
+    row = dict(row)
+    for k in ("page_ref", "observation", "recommendation"):
+        if row.get(k):
+            row[k] = humanise(row[k])
+    return row
+
+
 class ReportContext:
     """Everything the two reports need, read once from the database."""
 
@@ -47,8 +57,8 @@ class ReportContext:
             raise ValueError(f"Review session {session_id} not found.")
         self.documents = db.get_documents(session_id)
         self.primary = next((d for d in self.documents if d["role"] == "primary"), {})
-        self.assessments = db.get_assessments(session_id)
-        self.findings = db.get_findings(session_id, approved_only=True)
+        self.assessments = [_human(a) for a in db.get_assessments(session_id)]
+        self.findings = [_human(f) for f in db.get_findings(session_id, approved_only=True)]
         self.results = json.loads(self.session.get("results_json") or "{}")
         rep = ctx.config.get("report", {})
         self.signatories = rep.get("signatories", {

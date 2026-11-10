@@ -67,10 +67,10 @@ def compare(primary: ParsedDocument, primary_type: str, companions: list[tuple[s
             if hits:
                 res.append(ConsistencyResult("doc_number", f"Document number of the {ctype} quoted in the {primary_type}",
                                              comp.doc_number, name, comp.doc_number, "Consistent",
-                                             f"p.{hits[0][0]}: {hits[0][1]}" if hits[0][0] else hits[0][1]))
+                                             f"Page {hits[0][0]}: {hits[0][1]}" if hits[0][0] else hits[0][1]))
             else:
                 mention = primary.find(rf"\b{ctype}\b", limit=1)
-                ev = f"p.{mention[0][0]}: {mention[0][1]}" if mention and mention[0][0] else (mention[0][1] if mention else "")
+                ev = f"Page {mention[0][0]}: {mention[0][1]}" if mention and mention[0][0] else (mention[0][1] if mention else "")
                 res.append(ConsistencyResult("doc_number", f"Document number of the {ctype} quoted in the {primary_type}",
                                              f"refers to the {ctype} without its document number" if mention
                                              else f"does not refer to the {ctype}", name,

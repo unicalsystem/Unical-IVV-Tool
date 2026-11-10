@@ -21,7 +21,8 @@ import math
 import re
 from dataclasses import dataclass, field
 
-from core.document_parser import ParsedDocument
+from core.document_parser import ParsedDocument, _norm_title
+from core.refs import location, section_ref
 
 # Words that carry no meaning for compliance (review verbs, generic nouns, template words).
 GENERIC = set("""
@@ -149,12 +150,7 @@ class EvidenceAssessor:
 
     # ------------------------------------------------------------------ passages
     def _label(self, page: int | None, sec) -> str:
-        parts = []
-        if page and self.doc.file_type == "pdf":
-            parts.append(f"p.{page}")
-        if sec is not None and (sec.number or sec.title):
-            parts.append(f"Sec. {sec.number} {sec.title}".strip())
-        return ", ".join(parts)
+        return location(page if self.doc.file_type == "pdf" else None, sec)
 
     def _units(self) -> list[tuple[str, str, int | None]]:
         doc = self.doc
@@ -205,16 +201,26 @@ class EvidenceAssessor:
         self._top_titles = {sec.title.strip().lower() for sec in self.doc.sections
                             if sec.number and "." not in sec.number and sec.title.strip().lower() in toc}
         current = ""  # last heading seen (carried across pages)
+        if self.doc.toc:
+            first_body = next((pg for _, _, pg in self._units() if pg), None)
+            sec0 = self.doc.section_for(first_body, 0) if first_body else None
+            current = section_ref(sec0.number, sec0.title) if sec0 else ""
         for header, text, page in self._units():
             # word offsets of headings printed on this page, so each passage gets its real section
             marks: list[tuple[int, str]] = []
             words: list[str] = []
+            on_page = {e.key: e for e in self.doc.toc if e.page == page} if self.doc.toc else {}
             for line in text.splitlines():
-                m = self.HEAD.match(line) if pdf else None
-                if m and not line.rstrip().endswith(".") and len(m.group(2).split()) <= 10 \
-                        and int(m.group(1).split(".")[0]) <= 40 \
-                        and ("." in m.group(1) or m.group(2).strip().lower() in self._top_titles):
-                    marks.append((len(words), f"Sec. {m.group(1)} {m.group(2).strip()}"))
+                if on_page:  # headings from the document's table of contents
+                    e = on_page.get(_norm_title(line))
+                    if e is not None:
+                        marks.append((len(words), section_ref(e.number, e.title)))
+                elif pdf and not self.doc.toc:
+                    m = self.HEAD.match(line)
+                    if m and not line.rstrip().endswith(".") and len(m.group(2).split()) <= 10 \
+                            and int(m.group(1).split(".")[0]) <= 40 \
+                            and ("." in m.group(1) or m.group(2).strip().lower() in self._top_titles):
+                        marks.append((len(words), section_ref(m.group(1), m.group(2).strip())))
                 words.extend(line.split())
             if not words:
                 continue
@@ -224,7 +230,7 @@ class EvidenceAssessor:
                 if pdf:
                     before = [h for w, h in marks if w <= st + 10]
                     sec = before[-1] if before else current
-                    label = f"p.{page}" + (f", {sec}" if sec else "")
+                    label = ", ".join(x for x in (f"Page {page}" if page else "", sec) if x) or header
                 else:
                     label = header
                 toks = [t.strip("-/") for t in _tokens(chunk)]
@@ -300,15 +306,15 @@ class EvidenceAssessor:
 
         if cov >= 0.65 and best.words >= 25:
             if best and PLACEHOLDER.search(best.text):
-                return Verdict("PC", "Present-Incomplete", f"Addressed in {ref}, but the passage still contains "
+                return Verdict("PC", "Present-Incomplete", f"Addressed (see {ref}), but the passage still contains "
                                "unresolved placeholders (TBD/TBC or template fields).", quote, ref, cov, missing_best)
-            obs = f"Addressed in {ref} (coverage {cov:.0%})."
+            obs = f"Addressed - see {ref} (coverage {cov:.0%})."
             if missing_best:
                 obs += f" Not explicit in that passage: {miss_txt}."
             return Verdict("C", "Present", obs, quote, ref, cov, missing_best)
         if cov >= 0.30 or doc_cov >= 0.75:
-            obs = (f"Partly addressed in {ref} (coverage {cov:.0%}). Not found or not explicit: {miss_txt}."
-                   if miss_txt else f"Addressed in {ref} but the content is thin (coverage {cov:.0%}).")
+            obs = (f"Partly addressed - see {ref} (coverage {cov:.0%}). Not found or not explicit: {miss_txt}."
+                   if miss_txt else f"Addressed (see {ref}) but the content is thin (coverage {cov:.0%}).")
             return Verdict("PC", "Present-Incomplete", obs, quote, ref, cov, missing_best)
         if needs_companion and not self.companions:
             return Verdict("NR", "Cannot Verify", "This check depends on a companion document that was not supplied "
@@ -317,7 +323,7 @@ class EvidenceAssessor:
         miss_doc = ", ".join(words_of.get(c, c) for c in missing_doc[:6]) or miss_txt
         obs = f"Not addressed: the document does not contain text covering {miss_doc}."
         if quote and cov >= 0.2:
-            obs += f" Nearest text found in {ref} (coverage {cov:.0%})."
+            obs += f" Nearest text found at {ref} (coverage {cov:.0%})."
         return Verdict("NC", "Not Present", obs, quote if cov >= 0.2 else "", ref if cov >= 0.2 else "", cov,
                        missing_doc)
 

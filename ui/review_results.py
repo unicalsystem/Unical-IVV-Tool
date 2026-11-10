@@ -9,7 +9,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSettings, QStandardPaths, Qt, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout, QHBoxLayout, QLabel,
                                QLineEdit, QMessageBox, QPlainTextEdit, QPushButton, QTableWidget, QTableWidgetItem,
@@ -286,15 +286,17 @@ class ReviewResultsPage(QWidget):
         w = QWidget()
         lay = QVBoxLayout(w)
         info = QLabel("Reports use the Unical review checklist workbook (Excel) and the Unical review report (Word). "
-                      "Only approved findings are included. Earlier reports are never overwritten.")
+                      "Only approved findings are included. You choose the folder each time you generate; earlier "
+                      "reports are never overwritten.")
         info.setWordWrap(True)
         info.setObjectName("PageSubtitle")
         lay.addWidget(info)
         row = QHBoxLayout()
-        self.out_dir = QLineEdit(str((self.ctx.root / self.ctx.config.get("reports_folder", "reports")).resolve()))
+        self.out_dir = QLineEdit(self._last_report_dir())
+        self.out_dir.setReadOnly(True)
         b = QPushButton("Choose folder…")
         b.clicked.connect(self._choose_dir)
-        row.addWidget(QLabel("Output folder:"))
+        row.addWidget(QLabel("Last used folder:"))
         row.addWidget(self.out_dir, 1)
         row.addWidget(b)
         lay.addLayout(row)
@@ -579,10 +581,29 @@ class ReviewResultsPage(QWidget):
             return
         QMessageBox.information(self, "Export", f"Saved {f}")
 
+    # ------------------------------------------------------------------ report folder
+    @staticmethod
+    def _settings() -> QSettings:
+        return QSettings("Unical Systems", "IVV Review Tool")
+
+    def _last_report_dir(self) -> str:
+        last = self._settings().value("reports/last_folder", "")
+        if last and Path(str(last)).is_dir():
+            return str(last)
+        docs = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+        return docs or str((self.ctx.root / self.ctx.config.get("reports_folder", "reports")).resolve())
+
+    def _ask_report_dir(self) -> str | None:
+        d = QFileDialog.getExistingDirectory(self, "Choose the folder to save the Excel and Word reports",
+                                             self.out_dir.text() or self._last_report_dir())
+        if not d:
+            return None
+        self.out_dir.setText(d)
+        self._settings().setValue("reports/last_folder", d)
+        return d
+
     def _choose_dir(self) -> None:
-        d = QFileDialog.getExistingDirectory(self, "Output folder", self.out_dir.text())
-        if d:
-            self.out_dir.setText(d)
+        self._ask_report_dir()
 
     def generate(self) -> None:
         if self.sid is None:
@@ -592,13 +613,26 @@ class ReviewResultsPage(QWidget):
                 self, "Reports", f"{len(drafts)} finding(s) are still Draft and will NOT appear in the reports.\n\n"
                                  "Generate anyway (e.g. as a working copy)?") != QMessageBox.Yes:
             return
+        folder = self._ask_report_dir()
+        if not folder:
+            return  # user cancelled the folder choice
         try:
-            paths = generate_reports(self.ctx, self.db, self.sid, Path(self.out_dir.text()), self.user.username)
+            paths = generate_reports(self.ctx, self.db, self.sid, Path(folder), self.user.username)
+        except PermissionError:
+            QMessageBox.critical(self, "Reports", f"Cannot write to:\n{folder}\n\nChoose a folder you can save to, "
+                                                  "or close the report if it is open in Excel/Word.")
+            return
         except Exception as exc:  # show a clear message
             QMessageBox.critical(self, "Reports", f"Report generation failed:\n{exc}")
             return
         self.load_reports()
-        QMessageBox.information(self, "Reports", "Generated:\n" + "\n".join(str(p) for p in paths))
+        box = QMessageBox(QMessageBox.Information, "Reports", "Reports saved in:\n" + folder + "\n\n" +
+                          "\n".join(p.name for p in paths), parent=self)
+        open_btn = box.addButton("Open folder", QMessageBox.AcceptRole)
+        box.addButton(QMessageBox.Ok)
+        box.exec()
+        if box.clickedButton() is open_btn:
+            open_path(folder)
 
     def _open_latest(self, kind: str) -> None:
         rep = next((r for r in self.reports if r["report_type"] == kind), None)

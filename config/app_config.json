@@ -1,7 +1,7 @@
 {
   "app_name": "Unical Systems - DO-178 IV&V Review Tool",
   "app_short_name": "Unical IV&V Review Tool",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "company": "Unical Systems",
   "database_file": "database/unical_ivv.db",
   "log_file": "logs/application.log",

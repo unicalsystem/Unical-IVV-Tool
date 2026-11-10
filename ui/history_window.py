@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QSettings, QStandardPaths, Qt, Signal
 from PySide6.QtWidgets import (QComboBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton,
                                QVBoxLayout, QWidget)
 
@@ -105,9 +105,14 @@ class HistoryPage(QWidget):
         sid = self._selected()
         if not sid:
             return
-        d = QFileDialog.getExistingDirectory(self, "Export reports to", str(self.ctx.root / "reports"))
+        st = QSettings("Unical Systems", "IVV Review Tool")
+        start = str(st.value("reports/last_folder", "") or "")
+        if not start or not Path(start).is_dir():
+            start = QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation) or str(self.ctx.root / "reports")
+        d = QFileDialog.getExistingDirectory(self, "Choose the folder to save the Excel and Word reports", start)
         if not d:
             return
+        st.setValue("reports/last_folder", d)
         try:
             paths = generate_reports(self.ctx, self.db, sid, Path(d), self.user.username)
         except Exception as exc:

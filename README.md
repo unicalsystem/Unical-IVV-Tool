@@ -13,7 +13,7 @@ Architecture and design decisions: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md
 Every push to `main` is tested and built on Windows by GitHub Actions. Download
 from the **Releases** page (or the `exe-build` branch, folder `publish/`):
 
-- `UnicalIVVTool_Setup_1.0.1.exe`: standalone installer, one file with Python,
+- `UnicalIVVTool_Setup_1.0.2.exe`: standalone installer, one file with Python,
   Qt and all libraries inside. Start Menu and desktop shortcuts, uninstaller,
   no admin rights needed.
 - `UnicalIVVTool_Portable.exe`: a single exe that runs without installing.
@@ -46,8 +46,9 @@ prototype account before production use.
      from a check.
    - *Structure & Consistency*: sections found, companion consistency, documents
      referenced but not supplied.
-   - **Finalise** (all draft findings decided), then **Reports** generates the
-     Unical Excel checklist and Word review report from the reference templates.
+   - **Finalise** (all draft findings decided), then **Reports → Generate**
+     asks which folder to save in and writes the Unical Excel checklist and
+     Word review report there. The dialog opens at the folder used last.
 5. **Review History** finds any earlier review and re-exports its reports. A
    re-review of the same document is stored as a new version; nothing is
    overwritten.
@@ -138,7 +139,7 @@ copy `wheels` across, then `setup.bat wheels`.
 
 ## Tests
 
-`python -m pytest -q` – 90 tests:
+`python -m pytest -q` – 92 tests:
 - authentication, database, app paths, headless UI;
 - upload validation: valid, corrupted, empty, unsupported, wrong extension,
   scanned, password-protected;

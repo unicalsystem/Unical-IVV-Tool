@@ -23,6 +23,7 @@ if "%~1"=="" (
   --add-data "standards;standards" ^
   --add-data "database\schema.sql;database" ^
   --collect-submodules pymupdf ^
+  --exclude-module pandas --exclude-module numpy --exclude-module matplotlib --exclude-module tkinter ^
   main.py || (echo PyInstaller failed. & pause & exit /b 1)
 xcopy /E /I /Y config dist\UnicalIVVTool\config >nul
 xcopy /E /I /Y templates dist\UnicalIVVTool\templates >nul

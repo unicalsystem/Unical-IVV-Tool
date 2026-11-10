@@ -27,8 +27,8 @@ jobs:
       - name: Build application (PyInstaller)
         shell: cmd
         run: |
-          pyinstaller --noconfirm --clean --windowed --name UnicalIVVTool --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" --add-data "checklists;checklists" --add-data "standards;standards" --collect-submodules pymupdf main.py
-          pyinstaller --noconfirm --clean --windowed --onefile --name UnicalIVVTool_Portable --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" --add-data "checklists;checklists" --add-data "standards;standards" --collect-submodules pymupdf main.py
+          pyinstaller --noconfirm --clean --windowed --name UnicalIVVTool --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" --add-data "checklists;checklists" --add-data "standards;standards" --collect-submodules pymupdf --exclude-module pandas --exclude-module numpy --exclude-module matplotlib --exclude-module tkinter --exclude-module IPython --exclude-module pytest main.py
+          pyinstaller --noconfirm --clean --windowed --onefile --name UnicalIVVTool_Portable --icon assets\unical.ico --add-data "assets;assets" --add-data "config;config" --add-data "templates;templates" --add-data "database\schema.sql;database" --add-data "checklists;checklists" --add-data "standards;standards" --collect-submodules pymupdf --exclude-module pandas --exclude-module numpy --exclude-module matplotlib --exclude-module tkinter --exclude-module IPython --exclude-module pytest main.py
       - name: Build installer (Inno Setup)
         shell: pwsh
         run: |
@@ -50,11 +50,22 @@ jobs:
           New-Item -ItemType Directory -Force publish | Out-Null
           Copy-Item Output\*.exe publish\
           Copy-Item dist\UnicalIVVTool_Portable.exe publish\
+          # git hosting limit is 100 MB per file: store larger exes as 90 MB parts (join with: copy /b a.part* a.exe)
+          New-Item -ItemType Directory -Force parts | Out-Null
+          foreach ($f in Get-ChildItem publish\*.exe) {
+            if ($f.Length -gt 95MB) {
+              $in = [IO.File]::OpenRead($f.FullName); $buf = New-Object byte[] (90MB); $n = 0
+              while (($r = $in.Read($buf, 0, $buf.Length)) -gt 0) {
+                $out = [IO.File]::Create("$PWD\parts\$($f.Name).part$n"); $out.Write($buf, 0, $r); $out.Close(); $n++
+              }
+              $in.Close()
+            } else { Copy-Item $f.FullName parts\ }
+          }
           git config user.name "Unical Build"
           git config user.email "noreply@unical.in"
           git checkout --orphan exe-build
           git rm -rf --cached . | Out-Null
-          git add -f publish
+          git add -f parts
           git commit -m "Windows installer ${{ github.sha }}"
           git push -f origin exe-build
       - name: Publish GitHub Release

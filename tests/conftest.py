@@ -33,3 +33,26 @@ def qapp():
     app = QApplication.instance() or QApplication([])
     app.setStyleSheet(STYLESHEET)
     return app
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Close Qt widgets before interpreter shutdown.
+
+    On Windows, letting Python garbage-collect Qt widgets after the QApplication
+    is gone can crash the process at exit even though every test passed. We tidy
+    up and then end the process with pytest's own exit status.
+    """
+    try:
+        from PySide6.QtWidgets import QApplication
+        app = QApplication.instance()
+        if app is not None:
+            app.closeAllWindows()
+            for w in app.topLevelWidgets():
+                w.deleteLater()
+            app.processEvents()
+    except Exception:
+        pass
+    if sys.platform == "win32":
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(int(exitstatus))

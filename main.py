@@ -71,7 +71,13 @@ def main() -> int:
         return 1
     qt_app.setWindowIcon(QIcon(str(app.ctx.logo_path)))
     app.start()
-    return qt_app.exec()
+    code = qt_app.exec()
+    # Release Qt windows while QApplication still exists (clean exit on Windows)
+    if app.main_window is not None:
+        app.main_window.deleteLater()
+    app.login.deleteLater()
+    qt_app.processEvents()
+    return code
 
 
 if __name__ == "__main__":
